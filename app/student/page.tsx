@@ -350,7 +350,7 @@ export default function StudentPreferencesPage() {
               {studentName || 'طالب الفرقة الأولى'}
             </div>
             <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', direction: 'ltr' }}>
-              •••••{session?.ssn ? session.ssn.slice(-5) : ''}
+              {session?.ssn || ''}
             </div>
           </div>
           <button onClick={() => { clearSession(); window.location.href = '/'; }} className="btn-logout" title="تسجيل الخروج">
@@ -360,31 +360,24 @@ export default function StudentPreferencesPage() {
       </header>
 
       <main className="student-container">
-        {/* Banner */}
+        {/* Banner: فقط أهلاً (اسم الطالب) مع الرقم والشعبة */}
         <section className="student-info-banner">
           <div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 0.35rem 0' }}>
-              أهلاً بك في كلية العلوم.. كلية العظماء ومصنع العلماء
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+              أهلاً {studentName || 'بك'}
             </h2>
-            <p style={{ color: 'var(--accent)', fontSize: '0.95rem', fontWeight: 700, margin: '0.2rem 0 0.4rem 0' }}>
-              مرحباً بك يا {studentName || 'طالب المستقبل'}، خطوتك الأولى نحو التميز العلمي والابتكار.
-            </p>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', margin: 0 }}>
-              {studentResult
-                ? `🎉 تهانينا! تم إعلان نتيجة التنسيق والتشعيب الداخلي الخاصة بك: تم ترشيحك لبرنامج (${studentResult})`
-                : isReadOnly
-                ? registrationStateReason === 'ended'
-                  ? 'انتهت فترة التسجيل... ستظهر النتيجة قريباً ⏳'
-                  : 'فترة تسجيل الرغبات لم تبدأ بعد لهذا الحساب. يمكنك الاطلاع على البرامج المتاحة لحين فتح باب التسجيل.'
-                : isSubmitted
-                  ? 'تم حفظ رغباتك مسبقاً. يمكنك تعديل ترتيب الرغبات والضغط على "تعديل وحفظ ترتيب الرغبات" في أي وقت طالما فترة التسجيل مفتوحة.'
-                  : 'قم بترتيب الرغبات حسب أولوياتك واضغط على "حفظ وتأكيد ترتيب الرغبات" عند الانتهاء.'}
-            </p>
           </div>
 
           <div className="student-info-pills">
             <span className="pill-badge" style={{ background: 'rgba(0, 212, 184, 0.12)', color: 'var(--accent)', direction: 'ltr' }}>
-              الرقم القومي: •••••{session?.ssn ? session.ssn.slice(-5) : ''}
+              الرقم القومي: {session?.ssn || ''}
+            </span>
+            <span className="pill-badge" style={{
+              background: phone ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+              color: phone ? '#4ade80' : '#f87171',
+              direction: 'ltr'
+            }}>
+              رقم الهاتف: {phone ? phone : 'لم يسجل'}
             </span>
             {studentField && (
               <span className="pill-badge" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38bdf8' }}>
@@ -403,34 +396,15 @@ export default function StudentPreferencesPage() {
             background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 95, 70, 0.35) 100%)',
             border: '2px solid rgba(16, 185, 129, 0.75)',
             color: '#ffffff',
-            padding: '1.6rem 2rem',
+            padding: '1.4rem 1.8rem',
             borderRadius: 'var(--radius)',
             marginBottom: '1.8rem',
             textAlign: 'center',
             boxShadow: '0 8px 32px rgba(16, 185, 129, 0.25)',
           }}>
-            <div style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>🎉 🎓 🎉</div>
-            <div style={{ fontSize: '1.05rem', color: '#a7f3d0', fontWeight: 700, marginBottom: '0.4rem' }}>
-              ظهرت النتيجة الرسمية للتنسيق والتشعيب الداخلي
+            <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#34d399', margin: 0 }}>
+              النتيجة طلعت ونتيجتك هي ({studentResult})
             </div>
-            <div style={{ fontSize: '1.55rem', fontWeight: 900, color: '#34d399', margin: '0.5rem 0 0.3rem 0' }}>
-              نتيجتك هي:{' '}
-              <span style={{
-                color: '#ffffff',
-                textDecoration: 'underline',
-                padding: '2px 12px',
-                background: 'rgba(255,255,255,0.12)',
-                borderRadius: '6px',
-              }}>
-                {studentResult}
-              </span>
-            </div>
-            <p style={{ fontSize: '0.92rem', color: '#d1fae5', margin: '0.6rem 0 0 0' }}>
-              ألف مبروك! مع أطيب تمنيات إدارة الكلية بالتوفيق والنجاح 🌟
-            </p>
-            <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)', margin: '0.35rem 0 0 0' }}>
-              ⚠️ انتهت فترة تعديل الرغبات — ترتيب رغباتك المحفوظ معروض أدناه للاطلاع فقط.
-            </p>
           </div>
         ) : (
           registrationStateReason === 'ended' && (
@@ -451,7 +425,7 @@ export default function StudentPreferencesPage() {
           )
         )}
 
-        {registrationStateReason === 'not_started' && (
+        {registrationStateReason === 'not_started' && !studentResult && (
           <div style={{
             background: 'rgba(245, 158, 11, 0.12)',
             border: '1px solid rgba(245, 158, 11, 0.35)',
@@ -483,14 +457,14 @@ export default function StudentPreferencesPage() {
           </div>
         )}
 
-        {/* Instructions Card (Only when editing is allowed) */}
-        {!isReadOnly && (
-          <section className="preferences-instructions">
-            <div style={{ flex: 1 }}>
-              <strong>طريقة الترتيب:</strong> يمكنك تغيير ترتيب أي رغبة إما باختيار رقم الرغبة من القائمة المنسدلة، أو باستخدام أزرار التقديم والتأخير بجانب كل برنامج.
-            </div>
-          </section>
-        )}
+        {/* Instructions Card: تعليمات ترتيب الرغبات */}
+        <section className="preferences-instructions" style={{ marginBottom: '1.5rem' }}>
+          <div style={{ flex: 1 }}>
+            <strong>تعليمات الترتيب:</strong> {isReadOnly
+              ? 'الترتيب معروض كما تم حفظه واعتماده في النظام (للاطلاع فقط).'
+              : 'يمكنك تغيير ترتيب أي رغبة إما باختيار رقم الرغبة من القائمة المنسدلة، أو باستخدام أزرار التقديم والتأخير (▲ ▼) بجانب كل برنامج.'}
+          </div>
+        </section>
 
         {/* Programs List */}
         {programs.length === 0 ? (
@@ -502,26 +476,51 @@ export default function StudentPreferencesPage() {
             {displayed.map((program) => {
               const realIdx = programs.findIndex((p) => p.id === program.id);
               const rank = realIdx + 1;
+
+              // تمييز الرغبة التي تم ترشيح الطالب لها لو ظهرت النتيجة، أو الرغبة الأولى أثناء التسجيل
+              const isAcceptedChoice = Boolean(
+                studentResult &&
+                (program.name.trim().toLowerCase() === studentResult.trim().toLowerCase() ||
+                 studentResult.trim().toLowerCase().includes(program.name.trim().toLowerCase()) ||
+                 program.name.trim().toLowerCase().includes(studentResult.trim().toLowerCase()))
+              );
+              const isHighlight = studentResult ? isAcceptedChoice : rank === 1;
+
               return (
                 <div
                   key={program.id}
                   className="preference-item-card"
                   style={{
-                    borderColor: rank === 1 ? 'var(--accent)' : 'var(--border-color)',
-                    background: rank === 1 ? 'rgba(0, 212, 184, 0.06)' : 'var(--surface-card)',
+                    borderColor: isAcceptedChoice ? '#10b981' : isHighlight ? 'var(--accent)' : 'var(--border-color)',
+                    background: isAcceptedChoice ? 'rgba(16, 185, 129, 0.12)' : isHighlight ? 'rgba(0, 212, 184, 0.06)' : 'var(--surface-card)',
+                    boxShadow: isAcceptedChoice ? '0 0 15px rgba(16, 185, 129, 0.25)' : 'none',
                   }}
                 >
                   {/* Main Info (Rank + Name + Badges) */}
                   <div className="pref-main-info">
                     <div className="pref-rank-badge" style={{
-                      background: rank === 1 ? 'var(--primary)' : 'rgba(0, 168, 150, 0.18)',
-                      color: rank === 1 ? '#ffffff' : 'var(--accent)',
+                      background: isAcceptedChoice ? '#10b981' : isHighlight ? 'var(--primary)' : 'rgba(0, 168, 150, 0.18)',
+                      color: (isAcceptedChoice || isHighlight) ? '#ffffff' : 'var(--accent)',
                     }}>
                       {rank}
                     </div>
 
                     <div className="pref-title-group">
-                      <div className="pref-title">{program.name}</div>
+                      <div className="pref-title" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                        <span>{program.name}</span>
+                        {isAcceptedChoice && (
+                          <span style={{
+                            background: '#10b981',
+                            color: '#ffffff',
+                            padding: '2px 10px',
+                            borderRadius: '20px',
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
+                          }}>
+                            ✓ تم قبولك في هذا البرنامج
+                          </span>
+                        )}
+                      </div>
                       {program.groub && (
                         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
                           <span className="badge badge-ghost" style={{ fontSize: '0.75rem', padding: '0.2rem 0.6rem' }}>

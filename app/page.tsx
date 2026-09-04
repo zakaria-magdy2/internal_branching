@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { setSession } from '../lib/auth';
 
@@ -11,6 +11,19 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // إرجاع زر الدخول لحالته الطبيعية لو المستخدم ضغط Back من المتصفح
+  useEffect(() => {
+    setLoading(false);
+    const handlePageShow = (e: PageTransitionEvent) => {
+      setLoading(false);
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    window.addEventListener('popstate', () => setLoading(false));
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, []);
 
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
