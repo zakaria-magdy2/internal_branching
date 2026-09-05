@@ -1,42 +1,63 @@
-'use client';
+"use client";
 
-import { useState, useEffect, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
-import { setSession } from '../lib/auth';
+import { useState, useEffect, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { setSession, getSession } from "../lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [ssn, setSsn] = useState('');
-  const [password, setPassword] = useState('');
+  const [ssn, setSsn] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // إرجاع زر الدخول لحالته الطبيعية لو المستخدم ضغط Back من المتصفح
+  // إذا كان المستخدم مسجل دخول بالفعل، نوجهه لصفحته مباشرة
   useEffect(() => {
+    const session = getSession();
+    if (session && session.role) {
+      if (session.role === "admin") {
+        router.replace("/admin");
+        return;
+      } else if (session.role === "student") {
+        router.replace("/student");
+        return;
+      }
+    }
+
     setLoading(false);
     const handlePageShow = (e: PageTransitionEvent) => {
+      const currentSession = getSession();
+      if (currentSession && currentSession.role) {
+        if (currentSession.role === "admin") {
+          router.replace("/admin");
+          return;
+        } else if (currentSession.role === "student") {
+          router.replace("/student");
+          return;
+        }
+      }
       setLoading(false);
     };
-    window.addEventListener('pageshow', handlePageShow);
-    window.addEventListener('popstate', () => setLoading(false));
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("popstate", () => setLoading(false));
     return () => {
-      window.removeEventListener('pageshow', handlePageShow);
+      window.removeEventListener("pageshow", handlePageShow);
     };
-  }, []);
+  }, [router]);
 
   const handleFormSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setErrorMsg('');
+    setErrorMsg("");
     const cleanSsn = ssn.trim();
     const cleanPass = password.trim();
 
     if (!cleanSsn) {
-      setErrorMsg('من فضلك أدخل الرقم القومي');
+      setErrorMsg("من فضلك أدخل الرقم القومي");
       return;
     }
     if (!cleanPass) {
-      setErrorMsg('من فضلك أدخل كلمة المرور');
+      setErrorMsg("من فضلك أدخل كلمة المرور");
       return;
     }
 
@@ -44,10 +65,10 @@ export default function LoginPage() {
 
     try {
       // استدعاء الـ API Route الجديد (Server-Side) لضمان حفظ الكوكيز صح
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ ssn: cleanSsn, password: cleanPass }),
       });
 
@@ -59,11 +80,11 @@ export default function LoginPage() {
         }
         window.location.href = data.redirect;
       } else {
-        setErrorMsg(data.error || 'بيانات الدخول غير صحيحة ❌');
+        setErrorMsg(data.error || "بيانات الدخول غير صحيحة ❌");
         setLoading(false);
       }
     } catch {
-      setErrorMsg('تعذّر الاتصال بالنظام، تحقق من الإنترنت وحاول مرة أخرى');
+      setErrorMsg("تعذّر الاتصال بالنظام، تحقق من الإنترنت وحاول مرة أخرى");
       setLoading(false);
     }
   };
@@ -74,10 +95,18 @@ export default function LoginPage() {
         {/* Logos */}
         <div className="login-logos-wrapper">
           <div className="logo-box">
-            <img src="/images/science-logo.png" alt="لوجو كلية العلوم" className="logo-img" />
+            <img
+              src="/images/science-logo.png"
+              alt="لوجو كلية العلوم"
+              className="logo-img"
+            />
           </div>
           <div className="logo-box">
-            <img src="/images/suez-canal-logo.png" alt="لوجو جامعة قناة السويس" className="logo-img" />
+            <img
+              src="/images/suez-canal-logo.png"
+              alt="لوجو جامعة قناة السويس"
+              className="logo-img"
+            />
           </div>
         </div>
 
@@ -105,7 +134,7 @@ export default function LoginPage() {
                 type="text"
                 inputMode="numeric"
                 value={ssn}
-                onChange={(e) => setSsn(e.target.value.replace(/\D/g, ''))}
+                onChange={(e) => setSsn(e.target.value.replace(/\D/g, ""))}
                 placeholder="أدخل الرقم القومي (14 رقم)"
                 required
                 maxLength={14}
@@ -120,7 +149,7 @@ export default function LoginPage() {
             <div className="input-relative ltr-toggle-icon">
               <input
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="أدخل كلمة المرور"
@@ -133,13 +162,13 @@ export default function LoginPage() {
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
               >
-                {showPassword ? '👁️' : '🔒'}
+                {showPassword ? "👁️" : "🔒"}
               </button>
             </div>
           </div>
 
           <button type="submit" className="login-submit-btn" disabled={loading}>
-            {loading ? 'جاري التحقق من البيانات...' : 'دخول 🚀'}
+            {loading ? "جاري التحقق من البيانات..." : "دخول 🚀"}
           </button>
         </form>
       </div>
